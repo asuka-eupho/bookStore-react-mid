@@ -166,7 +166,7 @@ const RegisterPage = () => {
                                 <Input prefix={<PhoneOutlined />} placeholder="your phone" />
                             </Form.Item>
                             <Form.Item style={{ marginBottom: "0px" }}>
-                                <Button block type="primary" htmlType="submit" loading={isSubmit}>
+                                <Button block type="primary" htmlType='submit' loading={isSubmit}>
                                     Sign up
                                 </Button>
                                 <div style={styles.signup}>

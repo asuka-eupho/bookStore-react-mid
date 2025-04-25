@@ -1,19 +1,39 @@
-import React from "react";
-
-import { Button, Checkbox, Form, Grid, Input, theme, Typography } from "antd";
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { Button, Checkbox, Form, Grid, Input, message, theme, Typography, notification } from "antd";
 
 import { LockOutlined, MailOutlined } from "@ant-design/icons";
+import { LoginAPI } from "../../services/Api-handle";
+import { useNavigate } from "react-router-dom";
+import { runLoginAction } from "../../redux/account/accountSlice";
 
 const { useToken } = theme;
 const { useBreakpoint } = Grid;
 const { Text, Title, Link } = Typography;
+const dispatch = useDispatch();
 
 const LoginPage = () => {
     const { token } = useToken();
     const screens = useBreakpoint();
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
 
-    const onFinish = (values) => {
-        console.log("Received values of form: ", values);
+    const onFinish = async (values) => {
+        const { username, password } = values;
+        setIsLoading(true);
+        const res = await LoginAPI(username, password);
+        setIsLoading(false);
+        if (res?.data) {
+            localStorage.setItem('access_token', res.data.access_token);
+            dispatch(runLoginAction(res.data.user))
+            message.success("Everything done");
+            navigate("/")
+        } else {
+            notification.error({
+                message: "Something went wrongs",
+                description: "Failed action, try again..!",
+            })
+        }
     };
 
     const styles = {
@@ -91,7 +111,7 @@ const LoginPage = () => {
                     requiredMark="optional"
                 >
                     <Form.Item
-                        name="email"
+                        name="username"
                         rules={[
                             {
                                 type: "email",
@@ -129,7 +149,7 @@ const LoginPage = () => {
                         </a>
                     </Form.Item>
                     <Form.Item style={{ marginBottom: "0px" }}>
-                        <Button block="true" type="primary" htmlType="submit">
+                        <Button block="true" type="primary" htmlType="submit" loading={isLoading}>
                             Log in
                         </Button>
                         <div style={styles.footer}>
