@@ -1,18 +1,20 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+
 import { Button, Checkbox, Form, Grid, Input, message, theme, Typography, notification } from "antd";
 
 import { LockOutlined, MailOutlined } from "@ant-design/icons";
 import { LoginAPI } from "../../services/Api-handle";
 import { useNavigate } from "react-router-dom";
 import { runLoginAction } from "../../redux/account/accountSlice";
+import { useDispatch } from "react-redux";
 
 const { useToken } = theme;
 const { useBreakpoint } = Grid;
 const { Text, Title, Link } = Typography;
-const dispatch = useDispatch();
+
 
 const LoginPage = () => {
+    const dispatch = useDispatch();
     const { token } = useToken();
     const screens = useBreakpoint();
     const [isLoading, setIsLoading] = useState(false);

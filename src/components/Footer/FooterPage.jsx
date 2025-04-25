@@ -1,3 +1,4 @@
+import './footer.scss'
 const FooterPage = () => {
     return (
         <footer>

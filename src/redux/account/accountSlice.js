@@ -21,10 +21,24 @@ export const counterSlice = createSlice({
         runLoginAction: (state, action) => {
             // Redux Toolkit allows us to write "mutating" logic in reducers.
             state.isAuthenticated = true;
+            state.user = action.payload;
+        },
+        runGetAccountActon: (state, action) => {
+            // Redux Toolkit allows us to write "mutating" logic in reducers.
+            state.isAuthenticated = true;
             state.user = action.payload.user;
         },
-        decrement: (state) => {
-            state.value -= 1;
+        runLogoutAction: (state, action) => {
+            state.isAuthenticated = false;
+            localStorage.removeItem('access_token');
+            state.user = {
+                emai: "",
+                phone: "",
+                fullName: "",
+                role: "",
+                avatar: "",
+                id: ""
+            }
         }
     },
 
@@ -33,7 +47,7 @@ export const counterSlice = createSlice({
     },
 });
 
-export const { runLoginAction, } = counterSlice.actions;
+export const { runLoginAction, runGetAccountActon, runLogoutAction } = counterSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of

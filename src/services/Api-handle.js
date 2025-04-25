@@ -10,3 +10,6 @@ export const LoginAPI = (username, password) => {
 export const fetchUserAPI = () => {
     return instance.get("/api/v1/auth/account");
 }
+export const logoutAPI = () => {
+    return instance.post("/api/v1/auth/logout");
+}

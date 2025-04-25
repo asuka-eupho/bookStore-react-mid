@@ -11,7 +11,7 @@ import FooterPage from './components/Footer/FooterPage';
 import RegisterPage from './screen/register/registerPage';
 import { fetchUserAPI } from './services/Api-handle';
 import { useDispatch, useSelector } from 'react-redux';
-import { runLoginAction } from './redux/account/accountSlice';
+import { runGetAccountActon, runLoginAction } from './redux/account/accountSlice';
 import Loading from './components/Reloading';
 import Error404 from './components/Error/404';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -45,11 +45,11 @@ export default function App() {
   const isAuthenticated = useSelector(state => state.account.isAuthenticated)
   const fetchAccount = async () => {
     if (window.location.pathname == "/login"
-      || window.location.pathname == "/" || window.location.pathname == "/register"
+      || window.location.pathname == "/register"
     ) return;
     const res = await fetchUserAPI();
     if (res.data) {
-      dispatch(runLoginAction(res.data));
+      dispatch(runGetAccountActon(res.data));
     }
   }
   useEffect(() => {

@@ -1,20 +1,31 @@
 import React, { useState } from 'react';
 import { AiOutlineBilibili } from "react-icons/ai";
-import { FaReact } from 'react-icons/fa'
 import { FiShoppingCart } from 'react-icons/fi';
 import { VscSearchFuzzy } from 'react-icons/vsc';
-import { Divider, Badge, Drawer } from 'antd';
+import { Divider, Badge, Drawer, message } from 'antd';
 import './header.scss';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { DownOutlined } from '@ant-design/icons';
 import { Dropdown, Space } from 'antd';
 import { useNavigate } from 'react-router';
+import { logoutAPI } from '../../services/Api-handle';
+import { runLogoutAction } from '../../redux/account/accountSlice';
 
 const HeaderPage = () => {
     const [openDrawer, setOpenDrawer] = useState(false);
     const isAuthenticated = useSelector(state => state.account.isAuthenticated);
     const user = useSelector(state => state.account.user);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const handleLogout = async () => {
+        const res = await logoutAPI();
+        if (res && res.data) {
+            dispatch(runLogoutAction());
+            message.success("Logout successfully");
+            navigate("/")
+        }
+    }
 
     const items = [
         {
@@ -22,7 +33,7 @@ const HeaderPage = () => {
             key: 'account',
         },
         {
-            label: <label >Đăng xuất</label>,
+            label: <label onClick={() => handleLogout()} >Đăng xuất</label>,
             key: 'logout',
         },
 
@@ -77,7 +88,7 @@ const HeaderPage = () => {
                     </nav>
                 </header>
             </div>
-            <Drawer
+            {/* <Drawer
                 title="Menu chức năng"
                 placement="left"
                 onClose={() => setOpenDrawer(false)}
@@ -88,7 +99,7 @@ const HeaderPage = () => {
 
                 <p>Đăng xuất</p>
                 <Divider />
-            </Drawer>
+            </Drawer> */}
 
         </>
     )
