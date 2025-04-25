@@ -21,7 +21,7 @@ export const counterSlice = createSlice({
         runLoginAction: (state, action) => {
             // Redux Toolkit allows us to write "mutating" logic in reducers.
             state.isAuthenticated = true;
-            state.user = action.payload;
+            state.user = action.payload.user;
         },
         decrement: (state) => {
             state.value -= 1;

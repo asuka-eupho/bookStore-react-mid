@@ -10,8 +10,13 @@ import HeaderPage from './components/Header/HeaderPage';
 import FooterPage from './components/Footer/FooterPage';
 import RegisterPage from './screen/register/registerPage';
 import { fetchUserAPI } from './services/Api-handle';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { runLoginAction } from './redux/account/accountSlice';
+import Loading from './components/Reloading';
+import Error404 from './components/Error/404';
+import ProtectedRoute from './components/ProtectedRoute';
+import AdminPage from './screen/admin';
+import LayoutAdmin from './components/Admin/layoutAdmin';
 
 const Layout = () => {
   return (
@@ -22,10 +27,26 @@ const Layout = () => {
     </>
   )
 }
+const AdminLayout = () => {
+  const isAdminRoute = window.location.pathname.startsWith("/admin")
+  const admin = useSelector(state => state.account.user);
+  const adminRole = admin.role;
+  return (
+    <>
+      {isAdminRoute && adminRole === 'ADMIN' && <HeaderPage />}
+      <Outlet />
+      {isAdminRoute && adminRole === 'ADMIN' && <FooterPage />}
+    </>
+  )
+}
 
 export default function App() {
   const dispatch = useDispatch()
+  const isAuthenticated = useSelector(state => state.account.isAuthenticated)
   const fetchAccount = async () => {
+    if (window.location.pathname == "/login"
+      || window.location.pathname == "/" || window.location.pathname == "/register"
+    ) return;
     const res = await fetchUserAPI();
     if (res.data) {
       dispatch(runLoginAction(res.data));
@@ -39,11 +60,24 @@ export default function App() {
     {
       path: "/",
       element: <Layout />,
-      errorElement: <div>Oops...Something went wrongs</div>,
+      errorElement: <Error404 />,
       children: [
         {
           path: "product",
           element: <BookPage />,
+        },
+      ],
+    },
+    {
+      path: "/admin",
+      element: <LayoutAdmin />,
+      errorElement: <Error404 />,
+      children: [
+        {
+          index: true,
+          element: <ProtectedRoute>
+            <AdminPage />
+          </ProtectedRoute>
         },
       ],
     },
@@ -59,6 +93,12 @@ export default function App() {
   ]);
 
   return (
-    <RouterProvider router={router} />
+    <>
+      {
+        isAuthenticated === true || window.location.pathname === '/login' || window.location.pathname === '/register'
+          || window.location.pathname === '/'
+          ? <RouterProvider router={router} /> : <Loading />
+      }
+    </>
   );
 }

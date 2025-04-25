@@ -1,8 +1,7 @@
 const FooterPage = () => {
     return (
-        <>
-            this is footer page
-        </>
-    )
+        <footer>
+            asuka-euhpp@ 2025
+        </footer>)
 }
 export default FooterPage;
