@@ -13,3 +13,6 @@ export const fetchUserAPI = () => {
 export const logoutAPI = () => {
     return instance.post("/api/v1/auth/logout");
 }
+export const FetchAndFilterUser = (query) => {
+    return instance.get(`/api/v1/user?${query}`);
+}

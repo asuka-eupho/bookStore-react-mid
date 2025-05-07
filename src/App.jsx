@@ -17,6 +17,7 @@ import Error404 from './components/Error/404';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminPage from './screen/admin';
 import LayoutAdmin from './components/Admin/layoutAdmin';
+import UserManage from './screen/admin/mangeUser';
 
 const Layout = () => {
   return (
@@ -43,6 +44,7 @@ const AdminLayout = () => {
 export default function App() {
   const dispatch = useDispatch()
   const isAuthenticated = useSelector(state => state.account.isAuthenticated)
+
   const fetchAccount = async () => {
     if (window.location.pathname == "/login"
       || window.location.pathname == "/register"
@@ -78,12 +80,17 @@ export default function App() {
           element: <ProtectedRoute>
             <AdminPage />
           </ProtectedRoute>
-        },
+        }, {
+          path: "user",
+          element: <ProtectedRoute>
+            <UserManage />
+          </ProtectedRoute>
+        }
       ],
     },
     {
       path: "/login",
-      element: <LoginPage />,
+      element: <LoginPage />
     },
     {
       path: "/register",

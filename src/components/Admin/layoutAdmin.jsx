@@ -75,7 +75,7 @@ const LayoutAdmin = () => {
     return (
         <Layout style={{ minHeight: '100vh' }} className="layout-admin">
             <Sider theme='light' collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-                <div style={{ height: 32, margin: 16, textAlign: 'center' }}> Admin</div>
+                <div style={{ fontSize: "20px", fontWeight: "500", margin: "10px", textAlign: 'center' }}> Admin Center</div>
                 <Menu defaultSelectedKeys={[activeMenu]}
                     mode="inline"
                     items={items}
