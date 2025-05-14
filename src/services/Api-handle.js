@@ -16,3 +16,23 @@ export const logoutAPI = () => {
 export const FetchAndFilterUser = (query) => {
     return instance.get(`/api/v1/user?${query}`);
 }
+export const createUserAPI = (fullName, email, password, phone, role) => {
+    return instance.post("/api/v1/user", { fullName, email, password, phone, role });
+}
+export const createBulkUserAPI = (data) => {
+    return instance.post("/api/v1/user/bulk-create", data);
+}
+
+export const callUpdateUser = (_id, fullName, phone) => {
+    return instance.put('/api/v1/user', { _id, fullName, phone })
+}
+export const callDeleteUser = (id) => {
+    return instance.delete(`/api/v1/user/${id}`)
+}
+// ========================= book API ==========================
+export const FetchAndFilterBook = (query) => {
+    return instance.get(`/api/v1/book?${query}`);
+}
+export const DeleteBookAPI = (id) => {
+    return instance.delete(`/api/v1/book/${id}`);
+}

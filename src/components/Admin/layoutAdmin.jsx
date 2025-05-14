@@ -10,7 +10,7 @@ import {
     MenuUnfoldOutlined,
     DownOutlined,
 } from '@ant-design/icons';
-import { Layout, Menu, Dropdown, Space } from 'antd';
+import { Layout, Menu, Dropdown, Space, Avatar } from 'antd';
 import { Outlet } from "react-router-dom";
 import { Link } from 'react-router-dom';
 import './layout.scss';
@@ -56,21 +56,29 @@ const itemsDropdown = [
     {
         label: <label>Quản lý tài khoản</label>,
         key: 'account',
+        icon: <UserOutlined />
     },
     {
         label: <label >Đăng xuất</label>,
         key: 'logout',
+        icon: <AppstoreOutlined />
     },
+    {
+        label: <Link to='/'>Back to Homepage</Link>,
+        key: 'admin',
+        icon: <AppstoreOutlined />
+    }
 
 ];
 
 
 const LayoutAdmin = () => {
-    const [collapsed,
-        setCollapsed] = useState(false);
-    const [activeMenu,
-        setActiveMenu] = useState('dashboard');
+    const [collapsed, setCollapsed] = useState(false);
+    const [activeMenu, setActiveMenu] = useState('dashboard');
     const user = useSelector(state => state.account.user);
+
+    // link to access avatar
+    const urlAvatar = `${import.meta.env.VITE_BACKEND_URL}/images/avatar/${user?.avatar}`;
 
     return (
         <Layout style={{ minHeight: '100vh' }} className="layout-admin">
@@ -78,7 +86,7 @@ const LayoutAdmin = () => {
                 <div style={{ fontSize: "20px", fontWeight: "500", margin: "10px", textAlign: 'center' }}> Admin Center</div>
                 <Menu defaultSelectedKeys={[activeMenu]}
                     mode="inline"
-                    items={items}
+                    items={items} 
                     onClick={(e) => setActiveMenu(e.key)} />
             </Sider>
             <Layout> <div className='admin-header' >
@@ -92,6 +100,7 @@ const LayoutAdmin = () => {
                 <Dropdown menu={{ items: itemsDropdown }} trigger={['click']}>
                     <a onClick={(e) => e.preventDefault()}>
                         <Space>
+                            <Avatar src={urlAvatar} />
                             Welcome {user?.fullName}
                             <DownOutlined />
                         </Space>

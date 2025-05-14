@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { AiOutlineBilibili } from "react-icons/ai";
 import { FiShoppingCart } from 'react-icons/fi';
 import { VscSearchFuzzy } from 'react-icons/vsc';
-import { Divider, Badge, Drawer, message } from 'antd';
+import { Divider, Badge, Drawer, message, Avatar } from 'antd';
 import './header.scss';
 import { useDispatch, useSelector } from 'react-redux';
 import { DownOutlined } from '@ant-design/icons';
@@ -27,7 +27,7 @@ const HeaderPage = () => {
         }
     }
 
-    const items = [
+    let items = [
         {
             label: <label>Quản lý tài khoản</label>,
             key: 'account',
@@ -36,8 +36,15 @@ const HeaderPage = () => {
             label: <label onClick={() => handleLogout()} >Đăng xuất</label>,
             key: 'logout',
         },
-
     ];
+    if (user?.role === "ADMIN") {
+        items.unshift({
+            label: <label onClick={() => navigate('/admin')}>Administrator Dashboard</label>,
+            key: 'admin',
+        })
+    }
+    // link to access avatar
+    const urlAvatar = `${import.meta.env.VITE_BACKEND_URL}/images/avatar/${user?.avatar}`;
 
     return (
         <>
@@ -72,11 +79,12 @@ const HeaderPage = () => {
                             <li className="navigation__item mobile"><Divider type='vertical' /></li>
                             <li className="navigation__item mobile">
                                 {!isAuthenticated ?
-                                    <span onClick={() => navigate('/login')}> Tài Khoản</span>
+                                    <span onClick={() => navigate('/login')}> Đăng nhập</span>
                                     :
                                     <Dropdown menu={{ items }} trigger={['click']}>
                                         <a onClick={(e) => e.preventDefault()}>
                                             <Space>
+                                                <Avatar src={urlAvatar} />
                                                 Welcome {user?.fullName}
                                                 <DownOutlined />
                                             </Space>

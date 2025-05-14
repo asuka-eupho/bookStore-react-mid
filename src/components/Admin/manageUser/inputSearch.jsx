@@ -13,6 +13,7 @@ const SearchFilter = (props) => {
         }
     }
     const onSearch2 = (value) => {
+        console.log(value);
         let query = "";
         if (isNaN(value)) {
             query = `&email=/${value}/i`;

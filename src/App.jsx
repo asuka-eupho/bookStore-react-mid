@@ -18,6 +18,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminPage from './screen/admin';
 import LayoutAdmin from './components/Admin/layoutAdmin';
 import UserManage from './screen/admin/mangeUser';
+import BookMangement from './screen/admin/mangeBook';
 
 const Layout = () => {
   return (
@@ -28,18 +29,7 @@ const Layout = () => {
     </>
   )
 }
-const AdminLayout = () => {
-  const isAdminRoute = window.location.pathname.startsWith("/admin")
-  const admin = useSelector(state => state.account.user);
-  const adminRole = admin.role;
-  return (
-    <>
-      {isAdminRoute && adminRole === 'ADMIN' && <HeaderPage />}
-      <Outlet />
-      {isAdminRoute && adminRole === 'ADMIN' && <FooterPage />}
-    </>
-  )
-}
+
 
 export default function App() {
   const dispatch = useDispatch()
@@ -84,6 +74,11 @@ export default function App() {
           path: "user",
           element: <ProtectedRoute>
             <UserManage />
+          </ProtectedRoute>
+        }, {
+          path: "book",
+          element: <ProtectedRoute>
+            <BookMangement />
           </ProtectedRoute>
         }
       ],
