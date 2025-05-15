@@ -36,3 +36,28 @@ export const FetchAndFilterBook = (query) => {
 export const DeleteBookAPI = (id) => {
     return instance.delete(`/api/v1/book/${id}`);
 }
+export const fetchBookCategory = () => {
+    return instance.get("/api/v1/database/category");
+}
+export const callUploadBookImg = (fileImg) => {
+    const bodyFormData = new FormData();
+    bodyFormData.append('fileImg', fileImg);
+    return instance({
+        method: 'post',
+        url: '/api/v1/file/upload',
+        data: bodyFormData,
+        headers: {
+            "Content-Type": "multipart/form-data",
+            "upload-type": "book"
+        },
+    });
+}
+export const callCreateBookAPI = (thumbnail, slider, mainText, author, price, sold, quantity, category) => {
+    return instance.post('/api/v1/book', { thumbnail, slider, mainText, author, price, sold, quantity, category })
+}
+export const callUpdateBookAPI = (thumbnail, slider, mainText, author, price, sold, quantity, category, _id) => {
+    return instance.put(`/api/v1/book/${_id}`, { thumbnail, slider, mainText, author, price, sold, quantity, category, _id })
+}
+export const callDeleteBookAPI = (_id) => {
+    return instance.delete(`/api/v1/book/${_id}`);
+}

@@ -1,8 +1,9 @@
-import { Badge, Descriptions, Divider, Drawer, Modal, Upload } from "antd";
+import { Badge, Descriptions, Divider, Drawer, Modal, Upload, Image } from "antd";
 import moment from "moment";
 import React, { useEffect } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { FORMAT_DATE_DISPLAY } from "../../../utils/constant-date";
+import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 const ProductViewDetail = (props) => {
     const { openViewDetail, setOpenViewDetail, dataDetail, setDataDetail } = props;
     const [previewOpen, setPreviewOpen] = React.useState(false);
@@ -46,6 +47,12 @@ const ProductViewDetail = (props) => {
         setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
     };
     const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
+    const uploadButton = (
+        <button style={{ border: 0, background: 'none' }} type="button">
+            <PlusOutlined />
+            <div style={{ marginTop: 8 }}>Upload</div>
+        </button>
+    );
     return (
         <>
             <Drawer
@@ -85,11 +92,22 @@ const ProductViewDetail = (props) => {
                     showUploadList={
                         { showRemoveIcon: false }
                     }
-                >
+                >{fileList.length >= 8 ? null : uploadButton}
                 </Upload>
-                <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
-                    <img alt="example" style={{ width: '100%' }} src={previewImage} />
-                </Modal>
+                {previewImage && (
+                    <Image
+                        wrapperStyle={{ display: 'none' }}
+                        preview={{
+                            visible: previewOpen,
+                            onVisibleChange: (visible) => setPreviewOpen(visible),
+                            afterOpenChange: (visible) => !visible && setPreviewImage(''),
+                        }}
+                        src={previewImage}
+                    />
+
+                )}
+
+
             </Drawer>
 
         </>

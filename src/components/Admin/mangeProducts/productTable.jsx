@@ -7,6 +7,7 @@ import moment from "moment";
 import { FORMAT_DATE_DISPLAY } from "../../../utils/constant-date";
 import BookModalCreate from "./productModalCreate";
 import ProductViewDetail from "./productViewDetail";
+import BookModalUpdate from "./productModalUpdate";
 
 const style = { margin: "10px" };
 const AdminTableProduct = () => {
@@ -49,6 +50,7 @@ const AdminTableProduct = () => {
                 return (
                     <a href="#" onClick={() => {
                         setDataDetail(record);
+
                         setOpenViewDetail(true);
                     }}>
                         {record._id}
@@ -213,11 +215,14 @@ const AdminTableProduct = () => {
                 </Col>
             </Row>
             <BookModalCreate openModalCreate={openModalCreate}
-                setOpenModalCreate={setOpenModalCreate} />
+                setOpenModalCreate={setOpenModalCreate} refetchData={refetchData} />
             <ProductViewDetail openViewDetail={openViewDetail}
                 setOpenViewDetail={setOpenViewDetail}
                 dataDetail={dataDetail}
                 setDataDetail={setDataDetail} />
+            <BookModalUpdate dataUpdate={dataUpdate}
+                setDataUpdate={setDataUpdate}
+                refetchData={refetchData} />
         </>
     )
 }

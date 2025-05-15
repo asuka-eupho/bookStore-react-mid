@@ -1,68 +1,315 @@
-import { Divider, Form, Input, Modal } from "antd";
-import { useState } from "react";
+import { Col, Divider, Form, Input, InputNumber, Modal, notification, Row, Select, Upload } from "antd";
+import { useEffect, useState } from "react";
+import { callCreateBookAPI, callUploadBookImg, fetchBookCategory } from "../../../services/Api-handle";
+import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 
 const BookModalCreate = (props) => {
-    const { openModalCreate, setOpenModalCreate } = props;
+    const { openModalCreate, setOpenModalCreate, refetchData } = props;
     const [isSubmit, setIsSubmit] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isSliderLoading, setIsSliderLoading] = useState(false);
+    const [listCategories, setListCategories] = useState([]);
+    const [imageUrl, setImageUrl] = useState("");
+
+    const [dataThumbnail, setDataThumbnail] = useState([]);
+    const [dataSlider, setDataSlider] = useState([]);
+
+    const [previewOpen, setPreviewOpen] = useState(false);
+    const [previewImage, setPreviewImage] = useState("");
+    const [previewTitle, setPreviewTitle] = useState("");
+
     const [form] = Form.useForm();
 
+    useEffect(() => {
+        const fetchCategories = async () => {
+            const res = await fetchBookCategory();
+            if (res && res.data) {
+                const get = res.data.map((item) => {
+                    return {
+                        label: item,
+                        value: item
+                    }
+                })
+                setListCategories(get);
+            }
+        }
+        fetchCategories();
+    }, []);
     const onFinish = async (values) => {
-
+        if (dataThumbnail.length === 0) {
+            notification.error({
+                message: 'Lỗi validate',
+                description: 'Vui lòng upload ảnh thumbnail'
+            })
+            return;
+        }
+        if (dataSlider.length === 0) {
+            notification.error({
+                message: 'Lỗi validate',
+                description: 'Vui lòng upload ảnh slider'
+            })
+            return;
+        }
+        const { mainText, author, price, sold, quantity, category } = values;
+        const thumbnail = dataThumbnail[0].name;
+        const slider = dataSlider.map((item) => item.name);
+        setIsSubmit(true);
+        const res = await callCreateBookAPI(thumbnail, slider, mainText, author, price, sold, quantity, category);
+        if (res && res.data) {
+            notification.success({
+                message: 'Thành công',
+                description: 'Tạo mới sách thành công'
+            })
+            setOpenModalCreate(false);
+            form.resetFields();
+            setDataSlider([]);
+            setDataThumbnail([]);
+            await refetchData();
+        } else {
+            notification.error({
+                message: 'Lỗi',
+                description: 'Tạo mới sách thất bại'
+            })
+        }
+        setIsSubmit(false);
     }
+
+    // handle upload file
+    const handleUploadFileThumbnail = async ({ file, onSuccess, onError }) => {
+        const res = await callUploadBookImg(file);
+        if (res && res.data) {
+            setDataThumbnail([{
+                name: res.data.fileUploaded,
+                uid: file.uid,
+            }]);
+            onSuccess("ok");
+        } else {
+            onError("error");
+        }
+    };
+    const handleUploadFileSlider = async ({ file, onSuccess, onError }) => {
+        const res = await callUploadBookImg(file);
+        if (res && res.data) {
+            setDataSlider((dataSlider) => [...dataSlider, {
+                name: res.data.fileUploaded,
+                uid: file.uid,
+            }]);
+            onSuccess("ok");
+        } else {
+            onError("error");
+        }
+    };
+    // ========================
+
+
+    const getBase64 = (img, callback) => {
+        const reader = new FileReader();
+        reader.addEventListener('load', () => callback(reader.result));
+        reader.readAsDataURL(img);
+    };
+
+    const beforeUpload = (file) => {
+        const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+        if (!isJpgOrPng) {
+            message.error('You can only upload JPG/PNG file!');
+        }
+        const isLt2M = file.size / 1024 / 1024 < 2;
+        if (!isLt2M) {
+            message.error('Image must smaller than 2MB!');
+        }
+        return isJpgOrPng && isLt2M;
+    };
+    const handleChange = (info, type) => {
+        if (info.file.status === 'uploading') {
+            type ? setIsSliderLoading(true) : setIsLoading(true);
+            return;
+        }
+        if (info.file.status === 'done') {
+            // Get this url from response in real world.
+            getBase64(info.file.originFileObj, (url) => {
+                type ? setIsSliderLoading(false) : setIsLoading(false);
+                setImageUrl(url);
+            });
+        }
+    };
+    const handleRemoveFile = (file, type) => {
+        if (type === 'thumbnail') {
+            setDataThumbnail([])
+        }
+        if (type === 'slider') {
+            const newSlider = dataSlider.filter(x => x.uid !== file.uid);
+            setDataSlider(newSlider);
+        }
+    }
+
+    const handlePreview = async (file) => {
+        getBase64(file.originFileObj, (url) => {
+            setPreviewImage(url);
+            setPreviewOpen(true);
+            setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
+        });
+    };
+
     return (
         <>
             <Modal
-                title="Thêm mới product"
+                title="Thêm mới book"
                 open={openModalCreate}
                 onOk={() => { form.submit() }}
-                onCancel={() => setOpenModalCreate(false)}
+                onCancel={() => {
+                    form.resetFields();
+                    setOpenModalCreate(false);
+                }}
                 okText={"Tạo mới"}
                 cancelText={"Hủy"}
                 confirmLoading={isSubmit}
+                width={"50vw"}
+                //do not close when click fetchBook
+                maskClosable={false}
             >
                 <Divider />
 
                 <Form
                     form={form}
                     name="basic"
-                    style={{ maxWidth: 600 }}
                     onFinish={onFinish}
                     autoComplete="off"
                 >
-                    <Form.Item
-                        labelCol={{ span: 24 }}
-                        label="Tên hiển thị"
-                        name="fullName"
-                        rules={[{ required: true, message: 'Vui lòng nhập tên hiển thị!' }]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        labelCol={{ span: 24 }}
-                        label="Password"
-                        name="password"
-                        rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
-                    >
-                        <Input.Password />
-                    </Form.Item>
-                    <Form.Item
-                        labelCol={{ span: 24 }}
-                        label="Email"
-                        name="email"
-                        rules={[{ required: true, message: 'Vui lòng nhập email!' }]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        labelCol={{ span: 24 }}
-                        label="Số điện thoại"
-                        name="phone"
-                        rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}
-                    >
-                        <Input />
-                    </Form.Item>
+                    <Row gutter={15}>
+                        <Col span={12}>
+                            <Form.Item
+                                labelCol={{ span: 24 }}
+                                label="Tên sách"
+                                name="mainText"
+                                rules={[{ required: true, message: 'Vui lòng nhập tên hiển thị!' }]}
+                            >
+                                <Input />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                labelCol={{ span: 24 }}
+                                style={{ borderRadius: "5px" }}
+                                label="Tác giả"
+                                name="author"
+                                rules={[{ required: true, message: 'Vui lòng nhập tác giả!' }]}
+                            >
+                                <Input />
+                            </Form.Item>
+                        </Col>
+                        <Col span={6}>
+                            <Form.Item
+                                labelCol={{ span: 24 }}
+                                label="Giá tiền"
+                                name="price"
+                                rules={[{ required: true, message: 'Vui lòng nhập giá tiền!' }]}
+                            >
+                                <InputNumber
+                                    min={0}
+                                    style={{ width: '100%' }}
+                                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                    addonAfter="VND"
+                                />
+                            </Form.Item>
+                        </Col>
+
+                        <Col span={6}>
+                            <Form.Item
+                                labelCol={{ span: 24 }}
+                                label="Thể loại"
+                                name="category"
+                                rules={[{ required: true, message: 'Vui lòng chọn thể loại!' }]}
+                            >
+                                <Select
+                                    defaultValue={null}
+                                    showSearch
+                                    allowClear
+                                    //  onChange={handleChange}
+                                    options={listCategories}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span={6}>
+                            <Form.Item
+                                labelCol={{ span: 24 }}
+                                label="Số lượng"
+                                name="quantity"
+                                rules={[{ required: true, message: 'Vui lòng nhập số lượng!' }]}
+                            >
+                                <InputNumber min={1} style={{ width: '100%' }} />
+                            </Form.Item>
+                        </Col>
+                        <Col span={6}>
+                            <Form.Item
+                                labelCol={{ span: 24 }}
+                                label="Đã bán"
+                                name="sold"
+                                rules={[{ required: true, message: 'Vui lòng nhập số lượng đã bán!' }]}
+                                initialValue={0}
+                            >
+                                <InputNumber min={0} defaultValue={0} style={{ width: '100%' }} />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                labelCol={{ span: 24 }}
+                                label="Ảnh Thumbnail"
+                                name="thumbnail"
+                            >
+                                <Upload
+                                    name="thumbnail"
+                                    listType="picture-card"
+                                    className="avatar-uploader"
+                                    maxCount={1}
+                                    multiple={false}
+                                    customRequest={handleUploadFileThumbnail}
+                                    beforeUpload={beforeUpload}
+                                    onChange={handleChange}
+                                    onPreview={handlePreview}
+                                    onRemove={(file) => handleRemoveFile(file, 'thumbnail')}
+                                    showUploadList={{
+                                        showPreviewIcon: true,
+                                        showRemoveIcon: true,
+                                    }}
+                                >
+                                    <div>
+                                        {isLoading ? <LoadingOutlined /> : <PlusOutlined />}
+                                        <div style={{ marginTop: 8 }}>Upload</div>
+                                    </div>
+                                </Upload>
+                            </Form.Item>
+
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                labelCol={{ span: 24 }}
+                                label="Ảnh Slider"
+                                name="slider"
+                            >
+                                <Upload
+                                    multiple
+                                    name="slider"
+                                    onPreview={handlePreview}
+                                    listType="picture-card"
+                                    className="avatar-uploader"
+                                    customRequest={handleUploadFileSlider}
+                                    beforeUpload={beforeUpload}
+                                    onChange={(info) => handleChange(info, 'slider')}
+                                >
+                                    <div>
+                                        {isSliderLoading ? <LoadingOutlined /> : <PlusOutlined />}
+                                        <div style={{ marginTop: 8 }}>Upload</div>
+                                    </div>
+                                </Upload>
+                            </Form.Item>
+                        </Col>
+                    </Row>
                 </Form>
             </Modal>
+            <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={() => setPreviewOpen(false)}>
+                <img alt="example" style={{ width: '100%' }} src={previewImage} />
+            </Modal>
+
 
         </>
     )
