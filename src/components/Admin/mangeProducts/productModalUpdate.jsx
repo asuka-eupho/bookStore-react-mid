@@ -1,15 +1,19 @@
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
-import { Col, Form, Input, InputNumber, Modal, Row, Upload } from "antd";
-import { useEffect } from "react";
+import { Col, Divider, Form, Input, InputNumber, Modal, notification, Row, Select, Upload } from "antd";
+import { useEffect, useState } from "react";
+import { callUpdateBookAPI, callUploadBookImg, fetchBookCategory } from "../../../services/Api-handle";
+import { v4 as uuidv4 } from 'uuid';
 
 const BookModalUpdate = (props) => {
-    const { openModalUpdate, setOpenModalUpdate, dataUpdate, setDataUpdate } = props;
+    const { openModalUpdate, setOpenModalUpdate, dataUpdate, setDataUpdate, refetchData } = props;
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [loadingSlider, setLoadingSlider] = useState(false);
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
+    const [imageUrl, setImageUrl] = useState("");
+
     const [dataThumbnail, setDataThumbnail] = useState([]);
     const [dataSlider, setDataSlider] = useState([]);
 
@@ -35,14 +39,14 @@ const BookModalUpdate = (props) => {
     useEffect(() => {
         if (dataUpdate?._id) {
             const arrThumbnail = [{
-                uid: dataUpdate._id,
+                uid: uuidv4(),
                 name: dataUpdate.thumbnail,
                 status: 'done',
                 url: `${import.meta.env.VITE_BACKEND_URL}/images/book/${dataUpdate.thumbnail}`,
             }]
             const arrSlider = dataUpdate.slider.map((item, index) => {
                 return {
-                    uid: index,
+                    uid: uuidv4(),
                     name: item,
                     status: 'done',
                     url: `${import.meta.env.VITE_BACKEND_URL}/images/book/${item}`,
@@ -68,7 +72,60 @@ const BookModalUpdate = (props) => {
             setDataSlider(arrSlider);
             form.setFieldsValue(initialVal);
         }
+        return () => { form.resetFields() };
     }, [dataUpdate]);
+
+    const onFinish = async (values) => {
+        if (dataThumbnail.length === 0) {
+            notification.error({
+                message: 'Lỗi validate',
+                description: 'Vui lòng upload ảnh thumbnail'
+            })
+            return;
+        }
+        if (dataSlider.length === 0) {
+            notification.error({
+                message: 'Lỗi validate',
+                description: 'Vui lòng upload ảnh slider'
+            })
+            return;
+        }
+        setIsSubmit(true);
+        const thumbnail = dataThumbnail[0]?.name;
+        const slider = dataSlider.map((item) => item.name);
+        const { _id, mainText, author, price, sold, quantity, category } = values;
+        console.log(values);
+        const res = await callUpdateBookAPI(
+            _id,
+            thumbnail,
+            slider,
+            mainText,
+            author,
+            price,
+            sold,
+            quantity,
+            category
+        );
+        if (res && res.data) {
+            setOpenModalUpdate(false);
+            setInitForm(null);
+            setDataThumbnail([]);
+            setDataSlider([]);
+            form.resetFields();
+            await refetchData();
+            notification.success({
+                message: 'Cập nhật thành công',
+                description: 'Cập nhật thành công'
+            })
+
+        } else {
+            notification.error({
+                message: 'Cập nhật thất bại',
+                description: res.message
+            })
+        }
+        setIsSubmit(false);
+    }
 
     const handleUploadFileThumbnail = async ({ file, onSuccess, onError }) => {
         const res = await callUploadBookImg(file);
@@ -125,6 +182,31 @@ const BookModalUpdate = (props) => {
         reader.addEventListener('load', () => callback(reader.result));
         reader.readAsDataURL(file);
     };
+
+    const beforeUpload = (file) => {
+        const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+        if (!isJpgOrPng) {
+            message.error('You can only upload JPG/PNG file!');
+        }
+        const isLt2M = file.size / 1024 / 1024 < 2;
+        if (!isLt2M) {
+            message.error('Image must smaller than 2MB!');
+        }
+        return isJpgOrPng && isLt2M;
+    };
+    const handleChange = (info, type) => {
+        if (info.file.status === 'uploading') {
+            type ? setLoadingSlider(true) : setLoading(true);
+            return;
+        }
+        if (info.file.status === 'done') {
+            // Get this url from response in real world.
+            getBase64(info.file.originFileObj, (url) => {
+                type ? setLoadingSlider(false) : setLoading(false);
+                setImageUrl(url);
+            });
+        }
+    };
     return (
         <>
             <Modal
@@ -157,7 +239,7 @@ const BookModalUpdate = (props) => {
                             <Form.Item
                                 hidden
                                 labelCol={{ span: 24 }}
-                                label="Tên sách"
+                                label="ID product"
                                 name="_id"
                             >
                                 <Input />
@@ -210,7 +292,6 @@ const BookModalUpdate = (props) => {
                                     defaultValue={null}
                                     showSearch
                                     allowClear
-                                    //  onChange={handleChange}
                                     options={listCategory}
                                 />
                             </Form.Item>

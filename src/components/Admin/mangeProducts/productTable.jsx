@@ -1,6 +1,6 @@
 import { Button, Col, message, notification, Popconfirm, Row, Table } from "antd";
 import { use, useEffect, useState } from "react";
-import { DeleteBookAPI, FetchAndFilterBook } from "../../../services/Api-handle";
+import { callDeleteBookAPI, DeleteBookAPI, FetchAndFilterBook } from "../../../services/Api-handle";
 import SearchFilterProduct from "./productSearch";
 import { DeleteTwoTone, EditTwoTone, ExportOutlined, PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 import moment from "moment";
@@ -17,6 +17,7 @@ const AdminTableProduct = () => {
     const [total, setTotal] = useState(0);
     const [sortQuery, setSortQuery] = useState("");
     const [filter, setFilter] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     const [openModalCreate, setOpenModalCreate] = useState(false);
     const [openModalUpdate, setOpenModalUpdate] = useState(false);
@@ -29,6 +30,7 @@ const AdminTableProduct = () => {
         refetchData();
     }, [pageSize, current, sortQuery, filter]);
     const refetchData = async () => {
+        setIsLoading(true);
         let queryString = `current=${current}&pageSize=${pageSize}`;
         if (filter) {
             queryString += filter;
@@ -41,6 +43,7 @@ const AdminTableProduct = () => {
             setListBooks(res.data.result);
             setTotal(res.data.meta.total);
         }
+        setIsLoading(false);
     }
     const columns = [
         {
@@ -147,7 +150,7 @@ const AdminTableProduct = () => {
         setFilter(query);
     }
     const handleDeleteBook = async (id) => {
-        const res = await DeleteBookAPI(id);
+        const res = await callDeleteBookAPI(id);
         if (res && res.data) {
             message.success('Xóa book thành công');
             refetchData();
@@ -201,6 +204,7 @@ const AdminTableProduct = () => {
                     <Table
                         title={renderHeader}
                         style={style}
+                        loading={isLoading}
                         columns={columns}
                         rowKey="_id"
                         dataSource={listBooks}
@@ -222,6 +226,8 @@ const AdminTableProduct = () => {
                 setDataDetail={setDataDetail} />
             <BookModalUpdate dataUpdate={dataUpdate}
                 setDataUpdate={setDataUpdate}
+                openModalUpdate={openModalUpdate}
+                setOpenModalUpdate={setOpenModalUpdate}
                 refetchData={refetchData} />
         </>
     )

@@ -19,6 +19,8 @@ import AdminPage from './screen/admin';
 import LayoutAdmin from './components/Admin/layoutAdmin';
 import UserManage from './screen/admin/mangeUser';
 import BookMangement from './screen/admin/mangeBook';
+import MainPage from './components/Main/MainPage';
+import "./styles/global.scss"
 
 const Layout = () => {
   return (
@@ -54,8 +56,9 @@ export default function App() {
       element: <Layout />,
       errorElement: <Error404 />,
       children: [
+        { index: true, element: <MainPage /> },
         {
-          path: "product",
+          path: "/product/:slug",
           element: <BookPage />,
         },
       ],

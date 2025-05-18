@@ -30,6 +30,9 @@ export const callDeleteUser = (id) => {
     return instance.delete(`/api/v1/user/${id}`)
 }
 // ========================= book API ==========================
+export const fetchBookByIdAPI = (id) => {
+    return instance.get(`/api/v1/book/${id}`);
+}
 export const FetchAndFilterBook = (query) => {
     return instance.get(`/api/v1/book?${query}`);
 }
@@ -55,8 +58,8 @@ export const callUploadBookImg = (fileImg) => {
 export const callCreateBookAPI = (thumbnail, slider, mainText, author, price, sold, quantity, category) => {
     return instance.post('/api/v1/book', { thumbnail, slider, mainText, author, price, sold, quantity, category })
 }
-export const callUpdateBookAPI = (thumbnail, slider, mainText, author, price, sold, quantity, category, _id) => {
-    return instance.put(`/api/v1/book/${_id}`, { thumbnail, slider, mainText, author, price, sold, quantity, category, _id })
+export const callUpdateBookAPI = (_id, thumbnail, slider, mainText, author, price, sold, quantity, category) => {
+    return instance.put(`/api/v1/book/${_id}`, { thumbnail, slider, mainText, author, price, sold, quantity, category })
 }
 export const callDeleteBookAPI = (_id) => {
     return instance.delete(`/api/v1/book/${_id}`);
