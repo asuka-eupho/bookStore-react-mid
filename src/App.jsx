@@ -21,6 +21,9 @@ import UserManage from './screen/admin/mangeUser';
 import BookMangement from './screen/admin/mangeBook';
 import MainPage from './components/Main/MainPage';
 import "./styles/global.scss"
+import OrderView from './components/Order/orderView';
+import OrderPage from './screen/order/orderPage';
+import OrderHistory from './components/Order/orderHistory';
 
 const Layout = () => {
   return (
@@ -60,7 +63,14 @@ export default function App() {
         {
           path: "/product/:slug",
           element: <BookPage />,
+        }, {
+          path: "/order",
+          element: <OrderPage />
         },
+        {
+          path: "/history",
+          element: <OrderHistory />
+        }
       ],
     },
     {

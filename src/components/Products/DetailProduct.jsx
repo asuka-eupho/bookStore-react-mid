@@ -1,13 +1,14 @@
 import "./Bookpage.scss";
 import ModalGallery from "../../components/Products/ModalGalleryImage";
-import { Button, Col, Divider, Rate, Row } from "antd";
+import { Button, Col, Divider, message, Rate, Row } from "antd";
 import ImageGallery from "react-image-gallery";
 import { BsCartPlus } from 'react-icons/bs';
 import React, { useState } from "react";
 import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import LoaderContent from "./LoaderContent";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { doAddItemAction } from "../../redux/order/orderSlice";
+import { useNavigate } from "react-router";
 
 const ViewDetailProduct = (props) => {
     const refGallery = React.useRef(null);
@@ -16,6 +17,10 @@ const ViewDetailProduct = (props) => {
     const [currentQuantity, setCurrentQuantity] = useState(1);
 
     const { bookData } = props;
+
+    const navigate = useNavigate();
+
+    const isAuthenticated = useSelector(state => state.account.isAuthenticated);
     const dispatch = useDispatch();
 
     const images = bookData?.items ?? [];
@@ -42,6 +47,11 @@ const ViewDetailProduct = (props) => {
         }
     }
     const handleAddCart = (quantity, book) => {
+        if (!isAuthenticated) {
+            navigate("/login");
+            message.info("Please login before add product")
+            return
+        }
         dispatch(doAddItemAction({ quantity, _id: book._id, detail: book }))
     }
     return (
@@ -99,8 +109,8 @@ const ViewDetailProduct = (props) => {
                                         <span className='left-side'>Số lượng</span>
                                         <span className='right-side'>
                                             <button onClick={() => handleRenewQuantity("minus")} ><MinusOutlined /></button>
-                                            <input onChange={(e) => handleChangeInput(e.target.value)} value={currentQuantity} defaultValue={1} />
-                                            <button onClick={() => handleRenewQuantity("minus")}><PlusOutlined /></button>
+                                            <input onChange={(e) => handleChangeInput(e.target.value)} value={currentQuantity} />
+                                            <button onClick={() => handleRenewQuantity("plus")}><PlusOutlined /></button>
                                         </span>
                                     </div>
                                     <div className='buy'>

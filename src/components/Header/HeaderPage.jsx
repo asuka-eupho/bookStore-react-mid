@@ -65,7 +65,7 @@ const HeaderPage = () => {
                         })}
                     </div>
                     <div className='pop-cart-footer'>
-                        <button>Xem giỏ hàng</button>
+                        <button onClick={() => navigate("/order")}>Xem giỏ hàng</button>
                     </div>
                 </div>
 

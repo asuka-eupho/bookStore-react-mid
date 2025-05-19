@@ -64,3 +64,10 @@ export const callUpdateBookAPI = (_id, thumbnail, slider, mainText, author, pric
 export const callDeleteBookAPI = (_id) => {
     return instance.delete(`/api/v1/book/${_id}`);
 }
+// =================================Order=========================
+export const callPlaceOrderAPI = (data) => {
+    return instance.post("/api/v1/order", { ...data });
+}
+export const callOrderHistoryAPI = () => {
+    return instance.get("/api/v1/history")
+}
