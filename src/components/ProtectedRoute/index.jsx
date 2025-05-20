@@ -4,9 +4,9 @@ import Error403 from "../Error/403";
 
 const RoleBase = (props) => {
     const isAdminRoute = window.location.pathname.startsWith("/admin")
-    const admin = useSelector(state => state.account.user);
-    const adminRole = admin?.role;
-    if (isAdminRoute && adminRole === 'ADMIN') {
+    const user = useSelector(state => state.account.user);
+    const userRole = user?.role;
+    if (isAdminRoute && userRole === 'ADMIN' || !isAdminRoute && (userRole === 'USER' || userRole === 'ADMIN')) {
         return (<>{props.children}</>)
     } else {
         return (<Error403 />)

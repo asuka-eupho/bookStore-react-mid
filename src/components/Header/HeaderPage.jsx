@@ -10,13 +10,17 @@ import { Dropdown, Space } from 'antd';
 import { useNavigate } from 'react-router';
 import { logoutAPI } from '../../services/Api-handle';
 import { runLogoutAction } from '../../redux/account/accountSlice';
+import AccountMange from '../User/Account';
 
 const HeaderPage = () => {
     const [openDrawer, setOpenDrawer] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     const isAuthenticated = useSelector(state => state.account.isAuthenticated);
     const user = useSelector(state => state.account.user);
     const navigate = useNavigate();
     const dispatch = useDispatch();
+
     const carts = useSelector(state => state.order.carts);
 
     const handleLogout = async () => {
@@ -30,14 +34,20 @@ const HeaderPage = () => {
 
     let items = [
         {
-            label: <label>Quản lý tài khoản</label>,
+            label: <label onClick={() => setIsModalOpen(true)}>Quản lý tài khoản</label>,
             key: 'account',
+        },
+
+        {
+            label: <label onClick={() => navigate("/history")}>Lịch sử đơn hàng</label>,
+            key: 'historys',
         },
         {
             label: <label onClick={() => handleLogout()} >Đăng xuất</label>,
             key: 'logout',
         },
     ];
+
     if (user?.role === "ADMIN") {
         items.unshift({
             label: <label onClick={() => navigate('/admin')}>Administrator Dashboard</label>,
@@ -130,18 +140,10 @@ const HeaderPage = () => {
                     </nav>
                 </header>
             </div>
-            {/* <Drawer
-                title="Menu chức năng"
-                placement="left"
-                onClose={() => setOpenDrawer(false)}
-                open={openDrawer}
-            >
-                <p>Quản lý tài khoản</p>
-                <Divider />
-
-                <p>Đăng xuất</p>
-                <Divider />
-            </Drawer> */}
+            <AccountMange
+                isModalOpen={isModalOpen}
+                setIsModalOpen={setIsModalOpen}
+            />
 
         </>
     )

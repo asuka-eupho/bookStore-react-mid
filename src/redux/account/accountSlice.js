@@ -4,13 +4,14 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 const initialState = {
     isAuthenticated: false,
     user: {
-        emai: "",
+        email: "",
         phone: "",
         fullName: "",
         role: "",
         avatar: "",
         id: ""
-    }
+    },
+    tempAvatar: ""
 };
 
 export const counterSlice = createSlice({
@@ -39,15 +40,22 @@ export const counterSlice = createSlice({
                 avatar: "",
                 id: ""
             }
+        },
+        doUploadAvatarAction: (state, action) => {
+            state.tempAvatar = action.payload.avatar
+        },
+        doUpdateUserAction: (state, action) => {
+            state.user.avatar = action.payload.avatar;
+            state.user.name = action.payload.name;
+            state.user.phone = action.payload.phone
         }
     },
-
     extraReducers: (builder) => {
 
     },
 });
 
-export const { runLoginAction, runGetAccountActon, runLogoutAction } = counterSlice.actions;
+export const { runLoginAction, runGetAccountActon, runLogoutAction, doUploadAvatarAction, doUpdateUserAction } = counterSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of

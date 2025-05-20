@@ -71,3 +71,34 @@ export const callPlaceOrderAPI = (data) => {
 export const callOrderHistoryAPI = () => {
     return instance.get("/api/v1/history")
 }
+
+// ================================User account info==============
+export const callUploadAvatarAPI = (fileImg) => {
+    const bodyFormData = new FormData();
+    bodyFormData.append('fileImg', fileImg);
+    return instance({
+        method: 'post',
+        url: '/api/v1/file/upload',
+        data: bodyFormData,
+        headers: {
+            "Content-Type": "multipart/form-data",
+            "upload-type": "avatar"
+        },
+    });
+}
+export const callUpdateAccountUserAPI = (_id, phone, fullName, avatar) => {
+    return instance.put("/api/v1/user", { _id, phone, fullName, avatar })
+}
+export const callChangePasswordAPI = (email, oldpass, newpass) => {
+    return instance.post("/api/v1/user/change-password", {
+        email, oldpass, newpass
+    })
+}
+// ============================= Dashboard admin=================
+export const callFetchDashboard = () => {
+    return instance.get('/api/v1/database/dashboard')
+}
+
+export const callFetchListOrder = (query) => {
+    return instance.get(`/api/v1/order?${query}`)
+}

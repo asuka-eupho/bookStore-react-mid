@@ -1,6 +1,9 @@
 import { Modal, Tabs } from "antd"
+import UserInfo from "./UserInfo";
+import ChangePassword from "./NewPassword";
 
-const AccountMange = () => {
+const AccountMange = (props) => {
+    const { isModalOpen, setIsModalOpen } = props
     const items = [
         {
             key: 'info',
