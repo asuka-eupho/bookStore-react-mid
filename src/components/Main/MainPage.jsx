@@ -3,7 +3,7 @@ import { Button, Checkbox, Col, Divider, Form, InputNumber, Pagination, Rate, Ro
 import { FetchAndFilterBook, fetchBookCategory } from "../../services/Api-handle";
 import { useEffect, useState } from "react";
 import "./Mainpage.scss";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useOutletContext } from "react-router-dom";
 import WaitingContent from "./WaitingContent";
 const MainPage = () => {
     const [form] = Form.useForm();
@@ -12,9 +12,11 @@ const MainPage = () => {
     const [current, setCurrent] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [total, setTotal] = useState(0);
-    const [sortQuery, setSortQuery] = useState("");
+    const [sortQuery, setSortQuery] = useState("sort=-sold");
     const [filter, setFilter] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+
+    const [searchTerm, setSearchTerm] = useOutletContext();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -42,6 +44,9 @@ const MainPage = () => {
             if (sortQuery) {
                 queryString += `&${sortQuery}`;
             }
+            if (searchTerm) {
+                queryString += `&mainText=/${searchTerm}/i`;
+            }
             const res = await FetchAndFilterBook(queryString);
             if (res && res.data) {
                 setListBook(res.data.result);
@@ -50,7 +55,7 @@ const MainPage = () => {
             setIsLoading(false);
         }
         fetchBooks();
-    }, [current, pageSize, sortQuery, filter]);
+    }, [current, pageSize, sortQuery, filter, searchTerm]);
     const items = [
         {
             key: "sort=-sold",
@@ -168,6 +173,7 @@ const MainPage = () => {
                                             onClick={() => {
                                                 setFilter("")
                                                 setSortQuery("")
+                                                setSearchTerm("")
                                                 setCurrent(1);
                                                 form.resetFields();
                                             }} />

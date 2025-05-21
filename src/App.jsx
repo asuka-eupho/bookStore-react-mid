@@ -26,10 +26,11 @@ import OrderPage from './screen/order/orderPage';
 import OrderHistory from './components/Order/orderHistory';
 
 const Layout = () => {
+  const [searchTerm, setSearchTerm] = useState("");
   return (
     <>
-      <HeaderPage />
-      <Outlet />
+      <HeaderPage searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <Outlet context={[searchTerm, setSearchTerm]} />
       <FooterPage />
     </>
   )
@@ -65,11 +66,15 @@ export default function App() {
           element: <BookPage />,
         }, {
           path: "/order",
-          element: <OrderPage />
+          element: <ProtectedRoute>
+            <OrderPage />
+          </ProtectedRoute>
         },
         {
           path: "/history",
-          element: <OrderHistory />
+          element: <ProtectedRoute>
+            <OrderHistory />
+          </ProtectedRoute>
         }
       ],
     },

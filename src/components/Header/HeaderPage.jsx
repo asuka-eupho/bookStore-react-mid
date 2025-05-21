@@ -12,7 +12,7 @@ import { logoutAPI } from '../../services/Api-handle';
 import { runLogoutAction } from '../../redux/account/accountSlice';
 import AccountMange from '../User/Account';
 
-const HeaderPage = () => {
+const HeaderPage = (props) => {
     const [openDrawer, setOpenDrawer] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -99,6 +99,7 @@ const HeaderPage = () => {
                             <input
                                 className="input-search" type={'text'}
                                 placeholder="Bạn tìm gì hôm nay"
+                                onChange={(e) => props.setSearchTerm(e.target.value)}
                             />
                         </div>
 

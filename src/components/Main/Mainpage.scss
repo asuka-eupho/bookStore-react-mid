@@ -16,7 +16,8 @@
             .wrapper {
                 cursor: pointer;
                 box-shadow: 0 0.0625rem 0.125rem 0 rgba(0, 0, 0, .1);
-                border-radius: 0.125rem;
+                border-radius: 0.25rem;
+                border: 1px solid rgba(0, 0, 0, 0.192);
                 padding: .3rem;
 
                 .text {
